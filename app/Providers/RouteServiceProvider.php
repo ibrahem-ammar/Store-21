@@ -35,6 +35,11 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+
+            Route::middleware(['web','auth','is_admin'])
+                ->name('dashboard.')
+                ->prefix('dashboard')
+                ->group(base_path('routes/admin.php'));
         });
     }
 
@@ -48,5 +53,14 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+    }
+
+    
+ public function redirectTo(){
+        if(auth()->user()->type == 'admin'){
+            return route('dashboard.index');
+        }else{
+            return route('index');
+        }
     }
 }
